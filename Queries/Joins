@@ -1,0 +1,106 @@
+Top 10 movies by revenue
+
+SELECT film.title, SUM(payment.amount) AS revenue, count(rental.rental_id) AS rentals
+FROM payment
+INNER JOIN  rental ON payment.rental_id = rental.rental_id
+INNER JOIN inventory ON rental.inventory_id  = inventory.inventory_id
+INNER JOIN film ON inventory.film_id = film.film_id
+GROUP BY film.title
+ORDER BY revenue DESC
+LIMIT 10
+
+
+
+Bottom 10 movies by revenue
+
+SELECT film.title, SUM(payment.amount) AS revenue, count(rental.rental_id) AS rentals
+FROM payment
+INNER JOIN  rental ON payment.rental_id = rental.rental_id
+INNER JOIN inventory ON rental.inventory_id  = inventory.inventory_id
+INNER JOIN film ON inventory.film_id = film.film_id
+GROUP BY film.title
+ORDER BY revenue ASC
+LIMIT 10
+
+
+
+Revenue by genre
+
+SELECT category.name AS genre, SUM(payment.amount) AS revenue
+FROM payment
+INNER JOIN  rental ON payment.rental_id = rental.rental_id
+INNER JOIN inventory ON rental.inventory_id  = inventory.inventory_id
+INNER JOIN film ON inventory.film_id = film.film_id
+INNER JOIN film_category ON film.film_id = film_category.film_id
+INNER JOIN category ON film_category.category_id = category.category_id
+GROUP BY genre
+ORDER BY revenue DESC
+
+
+
+Revenue by rating
+
+SELECT film.rating, SUM(payment.amount) AS revenue
+FROM payment
+INNER JOIN  rental ON payment.rental_id = rental.rental_id
+INNER JOIN inventory ON rental.inventory_id  = inventory.inventory_id
+INNER JOIN film ON inventory.film_id = film.film_id
+INNER JOIN film_category ON film.film_id = film_category.film_id
+GROUP BY film.rating
+ORDER BY revenue DESC
+
+
+
+Revenue by country
+
+SELECT country.country, SUM(payment.amount) AS revenue
+FROM payment
+INNER JOIN  rental ON payment.rental_id = rental.rental_id
+INNER JOIN customer ON rental.customer_id  = customer.customer_id
+INNER JOIN address ON customer.address_id = address.address_id
+INNER JOIN city ON address.city_id = city.city_id
+INNER JOIN country ON city.country_id = country.country_id
+GROUP BY country.country
+ORDER BY revenue DESC
+
+
+
+Customer geography
+SELECT country.country, COUNT(customer.customer_id) AS total_customers
+FROM customer
+INNER JOIN address ON customer.address_id = address.address_id
+INNER JOIN city ON address.city_id = city.city_id
+INNER JOIN country ON city.country_id = country.country_id
+GROUP BY country.country
+ORDER BY total_customers DESC
+
+
+
+Top 10 countries & top 10 cities by customer
+
+SELECT C. city, D. country,
+COUNT(customer_id) AS total_customers
+FROM customer A
+INNER JOIN address B ON A. address_id = B. address_id
+INNER JOIN city C ON B. city_id = C. city_id
+INNER JOIN country D ON C. country_id = D. country_id
+WHERE D. country IN ('India', 'China', 'United States', 'Japan', 'Mexico', 'Brazil', 'Russian Federation', 'Philippines', 'Turkey', 'Indonesia')
+GROUP BY city, country
+ORDER BY total_customers DESC
+LIMIT 10
+
+
+
+Top 5 customers in the top 10 cities
+
+SELECT B. customer_id, B. first_name, B. last_name, D. city, E. country,
+SUM(amount) AS total_amount_paid
+FROM payment A
+INNER JOIN customer B ON A. customer_id = B. customer_id
+INNER JOIN address C ON B. address_id = C. address_id
+INNER JOIN city D ON C. city_id = D. city_id
+INNER JOIN country E ON D. country_id = E. country_id
+WHERE E. country IN ('India', 'China', 'United States', 'Japan', 'Mexico', 'Brazil', 'Russian Federation', 'Philippines', 'Turkey', 'Indonesia') AND D. city IN ('Aurora', 'Atlixco', 'Xintai', 'Adoni', 'Dhule (Dhulia)', 'Kurashiki', 'Pingxiang', 'Sivas', 'Celaya', 'So Leopoldo')
+GROUP BY B. customer_id, B. first_name, B. last_name, D. city, E. country
+ORDER BY total_amount_paid DESC
+LIMIT 5
